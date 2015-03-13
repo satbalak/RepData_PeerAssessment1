@@ -177,3 +177,36 @@ g
 From the above graph, we see that the histogram shape has changed and the mean and median have converged
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+We will use the weekdays function and add a column to the "full"" data frame (with no NAs) that has the day based on the "Date" column. Then based on this column, we will add a flag called wday_end to say this is a weekday or weekend. Then we convert this new column to factor.
+
+
+```r
+full$day <- weekdays(full$Date)
+full$wday_end <- ifelse(full$day == "Saturday"|full$day == "Sunday",
+                        "Weekend", "Weekday")
+full$wday_end <- as.factor(full$wday_end)
+str(full)
+```
+
+```
+## Classes 'data.table' and 'data.frame':	17568 obs. of  5 variables:
+##  $ Date    : POSIXct, format: "2012-10-02" "2012-10-02" ...
+##  $ steps   : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ day     : chr  "Tuesday" "Tuesday" "Tuesday" "Tuesday" ...
+##  $ wday_end: Factor w/ 2 levels "Weekday","Weekend": 1 1 1 1 1 1 1 1 1 1 ...
+##  - attr(*, ".internal.selfref")=<externalptr>
+```
+
+Now, that we have the data frame with the weekday, weekend flag, we will draw the plot comparing the average number of steps taken over weekdays and weekends.
+
+
+```r
+library(lattice)
+t <- full %>% group_by(interval, wday_end) %>% summarize(avg_steps=mean(steps, na.rm=T))
+xyplot(avg_steps ~ interval | wday_end, data = t,
+       layout=c(1,2), type="l", ylab="Number of steps")
+```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
